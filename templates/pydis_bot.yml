@@ -1,0 +1,47 @@
+categories:
+  welcome:
+    - welcome
+
+  staff:
+    - admins-mods
+    - lounge-helpers-org
+    - defcon
+    - incidents
+    - incidents-archive
+    - staff-announcements
+    - dev-logs
+
+  logs:
+    - all-logs
+    - big-brother-logs
+    - duck-pond
+
+  available-help-channels:
+    - how-to-get-help
+    - help-candy
+    - help-bagel
+
+  occupied-help-channel:
+    - help-apple
+    - help-banana
+
+  python-help-dormant:
+    - help-bread
+    - help-burrito
+
+  miscellaneous:
+    - bot-commands
+    - general-meta-voice
+    - dev-core-contrib
+
+  voice:
+    - voice-verification
+    - vc: voice
+    - staff-voice: voice
+    - afk: voice
+
+roles:
+  - admins
+  - devops
+  - helpers
+  - voice-verified

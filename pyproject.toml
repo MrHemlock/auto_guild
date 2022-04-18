@@ -1,0 +1,24 @@
+[project]
+name = ""
+version = ""
+description = ""
+authors = [
+    {name = "Daniel J Brown", email = "browndj3@gmail.com"},
+]
+license-expression = "MIT"
+dependencies = [
+    "requests>=2.27.1",
+    "pyyaml>=6.0",
+    "python-dotenv>=0.20.0",
+]
+requires-python = ">=3.10"
+
+[project.urls]
+Homepage = ""
+
+[tool]
+[tool.pdm]
+
+[build-system]
+requires = ["pdm-pep517>=0.12.0"]
+build-backend = "pdm.pep517.api"
