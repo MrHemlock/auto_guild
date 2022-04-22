@@ -1,6 +1,7 @@
 import argparse
+from pprint import pprint
 
-# from yaml import load, Loader
+from yaml import load, Loader
 
 
 parser = argparse.ArgumentParser()
@@ -26,3 +27,38 @@ def channel_parser(channel_mapping):
         id that the channel is listed under
     """
     payload = []
+    current_id = 0
+
+    for category, channels in channel_mapping.items():
+        parent_id = current_id
+
+        payload.append({
+            "name": category,
+            "id": parent_id,
+            "type": 4
+            })
+        current_id += 1
+        for channel in channels:
+            (name, type_), = channel.items()
+            if type_ == "text":
+                type_id = 0
+            elif type_ == "voice":
+                type_id = 2
+
+            payload.append({
+                "name": name,
+                "id": current_id,
+                "type": type_id,
+                "parent_id": parent_id
+                })
+            current_id += 1
+
+    return payload
+
+
+if __name__ == "__main__":
+    with open(args.structure) as file:
+        dumped = load(file, Loader=Loader)
+
+    organized = channel_parser(dumped["categories"])
+    pprint(organized)

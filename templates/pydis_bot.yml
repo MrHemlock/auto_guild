@@ -1,41 +1,41 @@
 categories:
   welcome:
-    - welcome
+    - welcome: text
 
   staff:
-    - admins-mods
-    - lounge-helpers-org
-    - defcon
-    - incidents
-    - incidents-archive
-    - staff-announcements
-    - dev-logs
+    - admins-mods: text
+    - lounge-helpers-org: text
+    - defcon: text
+    - incidents: text
+    - incidents-archive: text
+    - staff-announcements: text
+    - dev-logs: text
 
   logs:
-    - all-logs
-    - big-brother-logs
-    - duck-pond
+    - all-logs: text
+    - big-brother-logs: text
+    - duck-pond: text
 
   available-help-channels:
-    - how-to-get-help
-    - help-candy
-    - help-bagel
+    - how-to-get-help: text
+    - help-candy: text
+    - help-bagel: text
 
   occupied-help-channel:
-    - help-apple
-    - help-banana
+    - help-apple: text
+    - help-banana: text
 
   python-help-dormant:
-    - help-bread
-    - help-burrito
+    - help-bread: text
+    - help-burrito: text
 
   miscellaneous:
-    - bot-commands
-    - general-meta-voice
-    - dev-core-contrib
+    - bot-commands: text
+    - general-meta-voice: text
+    - dev-core-contrib: text
 
   voice:
-    - voice-verification
+    - voice-verification: text
     - vc: voice
     - staff-voice: voice
     - afk: voice
