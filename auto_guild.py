@@ -1,3 +1,4 @@
+from __future__ import annotations
 import argparse
 from pprint import pprint
 
@@ -9,9 +10,8 @@ parser.add_argument("structure", help="file path to the guild structure")
 args = parser.parse_args()
 
 
-def channel_parser(channel_mapping):
-    """
-    Builds an array of channels to pass to the API
+def channel_parser(channel_mapping: dict[str, list[dict[str, str]]]) -> list[dict[str, str | int]]:
+    """Builds an list of channel objects to pass to the API
 
     Channels must consist of either 3 things if they're a category
     or 4 if they're a channel in a category
@@ -56,9 +56,32 @@ def channel_parser(channel_mapping):
     return payload
 
 
+def role_parser(roles: list[str]) -> list[dict[str, str | int]]:
+    """Returns a list of role objects to pass to the API
+    """
+    payload = []
+    current_id = 0
+
+    payload.append({
+        "name": "everyone",
+        "id": current_id
+        })
+    current_id += 1
+
+    for role in roles:
+        payload.append({
+            "name": role,
+            "id": current_id
+            })
+
+    return payload
+
+
 if __name__ == "__main__":
     with open(args.structure) as file:
         dumped = load(file, Loader=Loader)
 
-    organized = channel_parser(dumped["categories"])
-    pprint(organized)
+    channels = channel_parser(dumped["categories"])
+    roles = role_parser(dumped["roles"])
+    payload = {"channels": channels, "roles": roles}
+    pprint(payload)
