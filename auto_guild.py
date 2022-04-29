@@ -2,12 +2,15 @@ from __future__ import annotations
 import argparse
 from pprint import pprint
 
+from dotenv import dotenv_values
 from yaml import load, Loader
 
 
+config = dotenv_values(".env")
 parser = argparse.ArgumentParser()
 parser.add_argument("structure", help="file path to the guild structure")
 args = parser.parse_args()
+
 
 
 def channel_parser(channel_mapping: dict[str, list[dict[str, str]]]) -> list[dict[str, str | int]]:
@@ -40,10 +43,10 @@ def channel_parser(channel_mapping: dict[str, list[dict[str, str]]]) -> list[dic
         current_id += 1
         for channel in channels:
             (name, type_), = channel.items()
-            if type_ == "text":
-                type_id = 0
-            elif type_ == "voice":
+            if type_ == "voice":
                 type_id = 2
+            else:
+                type_id = 0
 
             payload.append({
                 "name": name,
@@ -77,11 +80,16 @@ def role_parser(roles: list[str]) -> list[dict[str, str | int]]:
     return payload
 
 
+def payload_builder(config):
+    pass
+
 if __name__ == "__main__":
     with open(args.structure) as file:
         dumped = load(file, Loader=Loader)
 
-    channels = channel_parser(dumped["categories"])
-    roles = role_parser(dumped["roles"])
-    payload = {"channels": channels, "roles": roles}
+    payload = payload_builder(dumped)
+
+    # channels = channel_parser(dumped["categories"])
+    # roles = role_parser(dumped["roles"])
+    # payload = {"channels": channels, "roles": roles}
     pprint(payload)

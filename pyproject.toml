@@ -23,9 +23,3 @@ repository = "https://github.com/MrHemlock/auto_guild"
 [build-system]
 requires = ["pdm-pep517>=0.12.0"]
 build-backend = "pdm.pep517.api"
-
-[tool.pyright]
-pythonVersion = "3.10"
-pythonPlatform = "Windows"
-
-extraPaths = ["./__pypackages__/3.10/lib"]
