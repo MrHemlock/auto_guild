@@ -3,10 +3,11 @@ import argparse
 from pprint import pprint
 
 from dotenv import dotenv_values
+from requests import session
 from yaml import load, Loader
 
 
-config = dotenv_values(".env")
+BOT_TOKEN = dotenv_values(".env")['BOT_TOKEN']
 parser = argparse.ArgumentParser()
 parser.add_argument("structure", help="file path to the guild structure")
 args = parser.parse_args()
@@ -38,7 +39,7 @@ def channel_parser(channel_mapping: dict[str, list[dict[str, str]]]) -> list[dic
         payload.append({
             "name": category,
             "id": parent_id,
-            "type": 4
+            "type": 4,
             })
         current_id += 1
         for channel in channels:
@@ -52,7 +53,7 @@ def channel_parser(channel_mapping: dict[str, list[dict[str, str]]]) -> list[dic
                 "name": name,
                 "id": current_id,
                 "type": type_id,
-                "parent_id": parent_id
+                "parent_id": parent_id,
                 })
             current_id += 1
 
@@ -67,27 +68,41 @@ def role_parser(roles: list[str]) -> list[dict[str, str | int]]:
 
     payload.append({
         "name": "everyone",
-        "id": current_id
+        "id": current_id,
         })
     current_id += 1
 
     for role in roles:
         payload.append({
             "name": role,
-            "id": current_id
+            "id": current_id,
             })
+        current_id += 1
 
     return payload
 
 
-def payload_builder(config):
-    pass
+def payload_builder(config) -> dict[str, str | list[dict[str, str | int]]]:
+    payload = {}
+    payload["name"] = config["name"]
+    payload["channels"] = channel_parser(config['categories'])
+    payload["roles"] = role_parser(config['roles'])
+
+    return payload
+
+
+def create_guild(payload, session):
+
+    ...
+
 
 if __name__ == "__main__":
     with open(args.structure) as file:
         dumped = load(file, Loader=Loader)
 
     payload = payload_builder(dumped)
+
+
 
     # channels = channel_parser(dumped["categories"])
     # roles = role_parser(dumped["roles"])

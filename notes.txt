@@ -23,3 +23,6 @@ Possibly only need id and name
 Add field for name in the template.  
 
 Make additional function for outputting the completed payload.
+
+
+possibly just needs name for role
