@@ -1,21 +1,25 @@
 from __future__ import annotations
 import argparse
+import webbrowser
 from pprint import pprint
 
 from dotenv import dotenv_values
-from requests import session
-from yaml import load, Loader
+from requests import Session
+from yaml import dump, Dumper, load, Loader
 
 
-BOT_TOKEN = dotenv_values(".env")['BOT_TOKEN']
+BOT_TOKEN = dotenv_values(".env")["BOT_TOKEN"]
+USER_ID = dotenv_values(".env")["USER_ID"]
 parser = argparse.ArgumentParser()
 parser.add_argument("structure", help="file path to the guild structure")
 args = parser.parse_args()
+BASE_URL = r"https://discord.com/api/v9"
 
 
-
-def channel_parser(channel_mapping: dict[str, list[dict[str, str]]]) -> list[dict[str, str | int]]:
-    """Builds an list of channel objects to pass to the API
+def channel_parser(
+    channel_mapping: dict[str, list[dict[str, str]]]
+) -> list[dict[str, str | int]]:
+    """Builds a list of channel objects to pass to the API
 
     Channels must consist of either 3 things if they're a category
     or 4 if they're a channel in a category
@@ -36,47 +40,54 @@ def channel_parser(channel_mapping: dict[str, list[dict[str, str]]]) -> list[dic
     for category, channels in channel_mapping.items():
         parent_id = current_id
 
-        payload.append({
-            "name": category,
-            "id": parent_id,
-            "type": 4,
-            })
+        payload.append(
+            {
+                "name": category,
+                "id": parent_id,
+                "type": 4,
+            }
+        )
         current_id += 1
         for channel in channels:
-            (name, type_), = channel.items()
+            ((name, type_),) = channel.items()
             if type_ == "voice":
                 type_id = 2
             else:
                 type_id = 0
 
-            payload.append({
-                "name": name,
-                "id": current_id,
-                "type": type_id,
-                "parent_id": parent_id,
-                })
+            payload.append(
+                {
+                    "name": name,
+                    "id": current_id,
+                    "type": type_id,
+                    "parent_id": parent_id,
+                }
+            )
             current_id += 1
 
     return payload
 
 
 def role_parser(roles: list[str]) -> list[dict[str, str | int]]:
-    """Returns a list of role objects to pass to the API
-    """
+    """Returns a list of role objects to pass to the API"""
     payload = []
     current_id = 0
 
-    payload.append({
-        "name": "everyone",
-        "id": current_id,
-        })
+    payload.append(
+        {
+            "name": "everyone",
+            "id": current_id,
+        }
+    )
     current_id += 1
 
     for role in roles:
-        payload.append({
-            "name": role,
-            "id": current_id,
-            })
+        payload.append(
+            {
+                "name": role,
+                "id": current_id,
+            }
+        )
         current_id += 1
 
     return payload
@@ -85,15 +96,34 @@ def role_parser(roles: list[str]) -> list[dict[str, str | int]]:
 def payload_builder(config) -> dict[str, str | list[dict[str, str | int]]]:
     payload = {}
     payload["name"] = config["name"]
-    payload["channels"] = channel_parser(config['categories'])
-    payload["roles"] = role_parser(config['roles'])
+    payload["channels"] = channel_parser(config["categories"])
+    payload["roles"] = role_parser(config["roles"])
 
     return payload
 
 
 def create_guild(payload, session):
+    response = session.post(f"{BASE_URL}/guilds", data=payload)
+    pprint(response.json())
+    with open("server_structure.yaml", "w") as new_guild:
+        dump(response.json(), new_guild)
+    guild_id = response.json()["id"]
+    channel_id = response.json()["system_channel_id"]
+    return guild_id, channel_id
 
-    ...
+
+def get_invite(session, channel_id):
+    response = session.post(f"{BASE_URL}/channels/{channel_id}/invites", data={})
+    pprint(response.json())
+    invite_id = response.json()["code"]
+    return f"https://discord.gg/{invite_id}"
+
+
+def transfer_ownership(session, user_id, guild_id):
+    response = session.patch(
+        f"{BASE_URL}/guilds/{guild_id}", data={"owner_id": str(guild_id)}
+    )
+    pprint(response.json())
 
 
 if __name__ == "__main__":
@@ -102,9 +132,18 @@ if __name__ == "__main__":
 
     payload = payload_builder(dumped)
 
+    initalized = Session()
+    initalized.headers.update(
+        {
+            "Authorization": f"Bot {BOT_TOKEN}",
+            "User-Agent": "Auto-Guild (https://github.com/MrHemlock/auto_guild)",
+        }
+    )
 
-
-    # channels = channel_parser(dumped["categories"])
-    # roles = role_parser(dumped["roles"])
-    # payload = {"channels": channels, "roles": roles}
-    pprint(payload)
+    with initalized as session:
+        guild_id, channel_id = create_guild(payload, session)
+        invite_url = get_invite(session, channel_id)
+        print(invite_url)
+        webbrowser.open(invite_url)
+        input("Press enter after you have joined the server")
+        transfer_ownership(session, USER_ID, guild_id)

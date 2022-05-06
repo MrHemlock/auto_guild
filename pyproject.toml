@@ -9,9 +9,8 @@ license-expression = "MIT"
 dependencies = [
     "requests>=2.27.1",
     "pyyaml>=6.0",
-    "python-dotenv>=0.20.0",
-]
-requires-python = ">=3.10"
+    "python-dotenv>=0.20.0"]
+requires-python = ">3.7.0"
 
 [project.urls]
 homepage = "https://github.com/MrHemlock/auto_guild"
