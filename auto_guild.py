@@ -112,18 +112,17 @@ def payload_builder(config) -> dict[str, str | list[dict[str, str | int]]]:
     payload["name"] = config["name"]
     payload["channels"] = channel_parser(config["categories"])
     payload["roles"] = role_parser(config["roles"])
-
+    payload["system_channel_id"] = 1
     return payload
 
 
-def create_guild(payload, session):
-    response = session.post(f"{BASE_URL}/guilds", data=payload)
-    pprint(response.json())
-    with open("server_structure.yaml", "w") as new_guild:
-        dump(response.json(), new_guild)
-    guild_id = response.json()["id"]
-    channel_id = response.json()["system_channel_id"]
-    return guild_id, channel_id
+def create_guild(session, payload):
+    response = session.post(
+        f"{BASE_URL}/guilds",
+        json=payload,
+    )
+    return response.json()
+
 
 
 def get_invite(session, channel_id):
@@ -155,13 +154,26 @@ if __name__ == "__main__":
         {
             "Authorization": f"Bot {BOT_TOKEN}",
             "User-Agent": "Auto-Guild (https://github.com/MrHemlock/auto_guild)",
+            "Content-Type": "application/json",
         }
     )
 
     with initalized as session:
-        guild_id, channel_id = create_guild(payload, session)
-        invite_url = get_invite(session, channel_id)
+        guild_response = create_guild(session, payload)
+        guild_id = guild_response["id"]
+        guild_roles = guild_response["roles"]
+        invite_channel_id = guild_response["system_channel_id"]
+
+        channels = get_channels(session, guild_id)
+
+        finished_guild = compile_finished_guild(channels, guild_roles)
+
+        with open("guild_layout.yaml", "w") as file:
+            dump(finished_guild, file)
+
+        invite_url = get_invite(session, invite_channel_id)
         print(invite_url)
-        webbrowser.open(invite_url)
+        webbrowser.open(invite_url, new=2)
+
         input("Press enter after you have joined the server")
         transfer_ownership(session, USER_ID, guild_id)
