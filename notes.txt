@@ -26,3 +26,6 @@ Make additional function for outputting the completed payload.
 
 
 possibly just needs name for role
+
+
+Specify for the template layout that all categories need at least one channel for configuration purposes.

@@ -124,19 +124,45 @@ def create_guild(session, payload):
     return response.json()
 
 
+def get_channels(session, guild_id):
+    response = session.get(f"{BASE_URL}/guilds/{guild_id}/channels")
+    return response.json()
+
+
+def compile_finished_guild(channels, roles):
+    channel_list = []
+    role_list = []
+    finished_guild = {}
+
+    for channel in channels:
+        name = channel["name"]
+        id_ = channel["id"]
+        channel_list.append({name: id_})
+    finished_guild["channels"] = channel_list
+
+    for role in roles:
+        name = role["name"]
+        id_ = role["id"]
+        role_list.append({name: id_})
+    finished_guild["roles"] = role_list
+
+    return finished_guild
+
 
 def get_invite(session, channel_id):
-    response = session.post(f"{BASE_URL}/channels/{channel_id}/invites", data={})
-    pprint(response.json())
+    response = session.post(
+        f"{BASE_URL}/channels/{channel_id}/invites",
+        json={},
+    )
     invite_id = response.json()["code"]
     return f"https://discord.gg/{invite_id}"
 
 
 def transfer_ownership(session, user_id, guild_id):
-    response = session.patch(
-        f"{BASE_URL}/guilds/{guild_id}", data={"owner_id": str(guild_id)}
+    session.patch(
+        f"{BASE_URL}/guilds/{guild_id}",
+        json={"owner_id": str(user_id)},
     )
-    pprint(response.json())
 
 
 if __name__ == "__main__":
