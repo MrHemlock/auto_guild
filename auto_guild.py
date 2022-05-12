@@ -86,7 +86,7 @@ def role_parser(roles: list[str]) -> list[dict[str, str | int]]:
     """
     schema = ("id", "name")
     roles = ["everyone", *roles]
-    return list(map(lambda x: dict(zip(schema, x)), enumerate(roles)))
+    return [dict(zip(schema, role)) for role in enumerate(roles)]
 
 
 def payload_builder(config) -> dict[str, str | list[dict[str, str | int]]]:
