@@ -77,7 +77,13 @@ def channel_parser(
 
 
 def role_parser(roles: list[str]) -> list[dict[str, str | int]]:
-    """Returns a list of role objects to pass to the API"""
+    """Returns a list of role objects to pass to the API
+
+    Role objects submitted to the Create Guild endpoint only require
+    the role's name. The first role in the list will always be for
+    the @everyone role
+
+    """
     payload = []
     current_id = 0
 
