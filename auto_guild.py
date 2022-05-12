@@ -1,19 +1,25 @@
 from __future__ import annotations
 import argparse
 import webbrowser
-from pprint import pprint
 
 from dotenv import dotenv_values
 from requests import Session
-from yaml import dump, Dumper, load, Loader
+from yaml import dump, load, Loader
 
 
 BOT_TOKEN = dotenv_values(".env")["BOT_TOKEN"]
 USER_ID = dotenv_values(".env")["USER_ID"]
-parser = argparse.ArgumentParser()
-parser.add_argument("structure", help="file path to the guild structure")
-args = parser.parse_args()
 BASE_URL = r"https://discord.com/api/v9"
+
+
+class InvalidChannelType(Exception):
+    def __init__(self, channel_type):
+        self.channel_type = channel_type
+        self.message = "{} is not a valid channel type.  Please consult the readme."
+        super().__init__(self.message)
+
+    def __str__(self):
+        return self.message.format(self.channel_type)
 
 
 def channel_parser(
@@ -52,8 +58,10 @@ def channel_parser(
             ((name, type_),) = channel.items()
             if type_ == "voice":
                 type_id = 2
-            else:
+            elif type_ == "text":
                 type_id = 0
+            else:
+                raise InvalidChannelType(type_)
 
             payload.append(
                 {
@@ -127,6 +135,10 @@ def transfer_ownership(session, user_id, guild_id):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("structure", help="file path to the guild structure")
+    args = parser.parse_args()
+
     with open(args.structure) as file:
         dumped = load(file, Loader=Loader)
 
