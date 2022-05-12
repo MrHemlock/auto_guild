@@ -84,27 +84,9 @@ def role_parser(roles: list[str]) -> list[dict[str, str | int]]:
     the @everyone role
 
     """
-    payload = []
-    current_id = 0
-
-    payload.append(
-        {
-            "name": "everyone",
-            "id": current_id,
-        }
-    )
-    current_id += 1
-
-    for role in roles:
-        payload.append(
-            {
-                "name": role,
-                "id": current_id,
-            }
-        )
-        current_id += 1
-
-    return payload
+    schema = ("id", "name")
+    roles = ["everyone", *roles]
+    return list(map(lambda x: dict(zip(schema, x)), enumerate(roles)))
 
 
 def payload_builder(config) -> dict[str, str | list[dict[str, str | int]]]:
