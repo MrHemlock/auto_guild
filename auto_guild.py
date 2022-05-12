@@ -84,9 +84,8 @@ def role_parser(roles: list[str]) -> list[dict[str, str | int]]:
     the @everyone role
 
     """
-    schema = ("id", "name")
     roles = ["everyone", *roles]
-    return [dict(zip(schema, role)) for role in enumerate(roles)]
+    return [{"id": i, "name": role} for i, role in enumerate(roles)]
 
 
 def payload_builder(config) -> dict[str, str | list[dict[str, str | int]]]:
