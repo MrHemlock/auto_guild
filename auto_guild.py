@@ -1,14 +1,12 @@
 from __future__ import annotations
+
 import argparse
 import webbrowser
 
 from dotenv import dotenv_values
 from requests import Session
-from yaml import dump, load, Loader
+from yaml import Loader, dump, load
 
-
-BOT_TOKEN = dotenv_values(".env")["BOT_TOKEN"]
-USER_ID = dotenv_values(".env")["USER_ID"]
 BASE_URL = r"https://discord.com/api/v9"
 
 
@@ -165,7 +163,20 @@ def transfer_ownership(session, user_id, guild_id):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
+    env = dotenv_values(".env")
+    if "BOT_TOKEN" in env:
+        BOT_TOKEN = env["BOT_TOKEN"]
+    else:
+        raise ValueError("BOT_TOKEN not found in .env")
+    if "USER_ID" in env:
+        USER_ID = env["USER_ID"]
+    else:
+        raise ValueError("USER_ID not found in .env")
+
+    parser = argparse.ArgumentParser(
+        description="Create a Discord guild with the specified configuration",
+        epilog="Example: python auto_guild.py examples/pydis_bot.yml",
+    )
     parser.add_argument("structure", help="file path to the guild structure")
     args = parser.parse_args()
 
@@ -174,8 +185,8 @@ if __name__ == "__main__":
 
     payload = payload_builder(dumped)
 
-    initalized = Session()
-    initalized.headers.update(
+    initialized = Session()
+    initialized.headers.update(
         {
             "Authorization": f"Bot {BOT_TOKEN}",
             "User-Agent": "Auto-Guild (https://github.com/MrHemlock/auto_guild)",
@@ -183,7 +194,7 @@ if __name__ == "__main__":
         }
     )
 
-    with initalized as session:
+    with initialized as session:
         guild_response = create_guild(session, payload)
         guild_id = guild_response["id"]
         guild_roles = guild_response["roles"]
@@ -195,6 +206,7 @@ if __name__ == "__main__":
 
         with open("guild_layout.yaml", "w") as file:
             dump(finished_guild, file)
+        print(f"Guild layout saved to guild_layout.yaml")
 
         invite_url = get_invite(session, invite_channel_id)
         print(invite_url)
@@ -202,3 +214,4 @@ if __name__ == "__main__":
 
         input("Press enter after you have joined the server")
         transfer_ownership(session, USER_ID, guild_id)
+        print("Ownership transferred")
