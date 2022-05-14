@@ -192,7 +192,7 @@ if __name__ == "__main__":
     with open(args.structure) as file:
         dumped = load(file, Loader=Loader)
 
-    payload = payload_builder(dumped)
+    payload_ = payload_builder(dumped)
 
     initialized = Session()
     initialized.headers.update(
@@ -203,24 +203,24 @@ if __name__ == "__main__":
         }
     )
 
-    with initialized as session:
-        guild_response = create_guild(session, payload)
-        guild_id = guild_response["id"]
+    with initialized as session_:
+        guild_response = create_guild(session_, payload_)
+        guild_id_ = guild_response["id"]
         guild_roles = guild_response["roles"]
         invite_channel_id = guild_response["system_channel_id"]
 
-        channels = get_channels(session, guild_id)
+        channels_ = get_channels(session_, guild_id_)
 
-        finished_guild = compile_finished_guild(channels, guild_roles)
+        finished_guild_ = compile_finished_guild(channels_, guild_roles)
 
         with open("guild_layout.yaml", "w") as file:
-            dump(finished_guild, file)
+            dump(finished_guild_, file)
         print(f"Guild layout saved to guild_layout.yaml")
 
-        invite_url = get_invite(session, invite_channel_id)
+        invite_url = get_invite(session_, invite_channel_id)
         print(invite_url)
         webbrowser.open(invite_url, new=2)
 
         input("Press enter after you have joined the server")
-        transfer_ownership(session, USER_ID, guild_id)
+        transfer_ownership(session_, USER_ID, guild_id_)
         print("Ownership transferred")
