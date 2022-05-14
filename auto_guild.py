@@ -85,14 +85,11 @@ def role_parser(roles: list[str]) -> list[dict[str, str | int]]:
     the role's name. The first role in the list will always be for
     the @everyone role
     """
-    payload = []
+    payload = [{
+        "name": "everyone",
+        "id": 0,
+    }]
 
-    payload.append(
-        {
-            "name": "everyone",
-            "id": 0,
-        }
-    )
     current_id = 1
 
     for role in roles:
