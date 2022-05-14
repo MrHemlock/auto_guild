@@ -1,3 +1,5 @@
+"""A Python script to automate the creation of guilds."""
+
 from __future__ import annotations
 
 import argparse
@@ -11,17 +13,19 @@ BASE_URL = r"https://discord.com/api/v9"
 
 
 class InvalidChannelType(Exception):
-    def __init__(self, channel_type):
-        self.channel_type = channel_type
-        self.message = "{} is not a valid channel type.  Please consult the readme."
+    """Raised when the channel type is invalid."""
+
+    def __init__(self, channel_type: str) -> None:
+        self.channel_type: str = channel_type
+        self.message: str = "{} is not a valid channel type.  Please consult the readme."
         super().__init__(self.message)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.message.format(self.channel_type)
 
 
 def channel_parser(
-    channel_mapping: dict[str, list[dict[str, str]]]
+        channel_mapping: dict[str, list[dict[str, str]]]
 ) -> list[dict[str, str | int]]:
     """Builds a list of channel objects to pass to the API
 
@@ -80,7 +84,6 @@ def role_parser(roles: list[str]) -> list[dict[str, str | int]]:
     Role objects submitted to the Create Guild endpoint only require
     the role's name. The first role in the list will always be for
     the @everyone role
-
     """
     payload = []
 
@@ -104,7 +107,8 @@ def role_parser(roles: list[str]) -> list[dict[str, str | int]]:
     return payload
 
 
-def payload_builder(config) -> dict[str, str | list[dict[str, str | int]]]:
+def payload_builder(config: dict) -> dict[str, str | list[dict[str, str | int]]]:
+    """Builds the complete payload to pass to the API"""
     return {
         "name": config["name"],
         "channels": channel_parser(config["categories"]),
@@ -113,7 +117,8 @@ def payload_builder(config) -> dict[str, str | list[dict[str, str | int]]]:
     }
 
 
-def create_guild(session, payload):
+def create_guild(session: Session, payload: dict[str, str | int]) -> dict:
+    """Creates a guild using the API"""
     response = session.post(
         f"{BASE_URL}/guilds",
         json=payload,
@@ -121,22 +126,24 @@ def create_guild(session, payload):
     return response.json()
 
 
-def get_channels(session, guild_id):
+def get_channels(session: Session, guild_id: int) -> list[dict]:
+    """Gets all channels in a guild"""
     response = session.get(f"{BASE_URL}/guilds/{guild_id}/channels")
     return response.json()
 
 
-def compile_finished_guild(channels, roles):
-    channel_list = []
-    role_list = []
+def compile_finished_guild(channels: list[dict], roles: list[dict]) -> dict[str, list[dict[str, str]]]:
+    """Compiles the guild details into the format that the bot expects"""
     finished_guild = {}
 
+    channel_list = []
     for channel in channels:
         name = channel["name"]
         id_ = channel["id"]
         channel_list.append({name: id_})
     finished_guild["channels"] = channel_list
 
+    role_list = []
     for role in roles:
         name = role["name"]
         id_ = role["id"]
@@ -146,7 +153,8 @@ def compile_finished_guild(channels, roles):
     return finished_guild
 
 
-def get_invite(session, channel_id):
+def get_invite(session: Session, channel_id: str) -> str:
+    """Creates an invite for the given channel and returns the invite URL"""
     response = session.post(
         f"{BASE_URL}/channels/{channel_id}/invites",
         json={},
@@ -155,7 +163,8 @@ def get_invite(session, channel_id):
     return f"https://discord.gg/{invite_id}"
 
 
-def transfer_ownership(session, user_id, guild_id):
+def transfer_ownership(session: Session, user_id: str, guild_id: str) -> None:
+    """Transfers ownership of a guild to a user"""
     session.patch(
         f"{BASE_URL}/guilds/{guild_id}",
         json={"owner_id": str(user_id)},
@@ -165,11 +174,11 @@ def transfer_ownership(session, user_id, guild_id):
 if __name__ == "__main__":
     env = dotenv_values(".env")
     if "BOT_TOKEN" in env:
-        BOT_TOKEN = env["BOT_TOKEN"]
+        BOT_TOKEN: str = env["BOT_TOKEN"]
     else:
         raise ValueError("BOT_TOKEN not found in .env")
     if "USER_ID" in env:
-        USER_ID = env["USER_ID"]
+        USER_ID: str = env["USER_ID"]
     else:
         raise ValueError("USER_ID not found in .env")
 
