@@ -16,6 +16,9 @@ requires-python = ">=3.7"
 homepage = "https://github.com/MrHemlock/auto_guild"
 repository = "https://github.com/MrHemlock/auto_guild"
 
+[project.scripts]
+auto-guild = "auto_guild:run"
+
 [tool]
 [tool.pdm]
 

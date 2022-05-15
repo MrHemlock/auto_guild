@@ -168,7 +168,8 @@ def transfer_ownership(session: Session, user_id: str, guild_id: str) -> None:
     )
 
 
-if __name__ == "__main__":
+def run() -> None:
+    """Runs the script"""
     env = dotenv_values(".env")
     if "BOT_TOKEN" in env:
         BOT_TOKEN: str = env["BOT_TOKEN"]
@@ -221,3 +222,7 @@ if __name__ == "__main__":
         input("Press enter after you have joined the server")
         transfer_ownership(session_, USER_ID, guild_id_)
         print("Ownership transferred")
+
+
+if __name__ == "__main__":
+    run()
