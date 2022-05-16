@@ -17,7 +17,9 @@ class InvalidChannelType(Exception):
 
     def __init__(self, channel_type: str) -> None:
         self.channel_type: str = channel_type
-        self.message: str = "{} is not a valid channel type.  Please consult the readme."
+        self.message: str = (
+            "{} is not a valid channel type.  Please consult the readme."
+        )
         super().__init__(self.message)
 
     def __str__(self) -> str:
@@ -25,7 +27,7 @@ class InvalidChannelType(Exception):
 
 
 def channel_parser(
-        channel_mapping: dict[str, list[dict[str, str]]]
+    channel_mapping: dict[str, list[dict[str, str]]]
 ) -> list[dict[str, str | int]]:
     """Builds a list of channel objects to pass to the API
 
@@ -85,10 +87,12 @@ def role_parser(roles: list[str]) -> list[dict[str, str | int]]:
     the role's name. The first role in the list will always be for
     the @everyone role
     """
-    payload = [{
-        "name": "everyone",
-        "id": 0,
-    }]
+    payload = [
+        {
+            "name": "everyone",
+            "id": 0,
+        }
+    ]
 
     current_id = 1
 
@@ -129,7 +133,9 @@ def get_channels(session: Session, guild_id: int) -> list[dict]:
     return response.json()
 
 
-def compile_finished_guild(channels: list[dict], roles: list[dict]) -> dict[str, list[dict[str, str]]]:
+def compile_finished_guild(
+    channels: list[dict], roles: list[dict]
+) -> dict[str, list[dict[str, str]]]:
     """Compiles the guild details into the format that the bot expects"""
     finished_guild = {}
 
