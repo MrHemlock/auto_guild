@@ -22,3 +22,11 @@ Example:
 ```bash
 $ python auto_guild.py examples/pydis_bot.yml
 ```
+
+## Channel types
+
+The valid channel types are listed below
+
+- `0` - Text channel
+- `2` - Voice channel
+- `4` - Category
