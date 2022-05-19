@@ -17,6 +17,12 @@ $ pdm install
 
 ## Usage
 
+The script requires 3 things in order to run:
+- a server template yaml
+- a token for the bot you want to make the server
+- a user ID for the user you want to transfer ownership to
+
+
 Example:
 
 ```bash
