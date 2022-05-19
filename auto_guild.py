@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import argparse
 import webbrowser
+from os import getenv
 
-from dotenv import dotenv_values
+from dotenv import load_dotenv
 from requests import Session
 from yaml import Loader, dump, load
 
@@ -118,7 +119,9 @@ def payload_builder(config: dict) -> dict[str, str | list[dict[str, str | int]]]
     }
 
 
-def create_guild(session: Session, payload: dict[str, str | int]) -> dict:
+def create_guild(
+    session: Session, payload: dict[str, str | list[dict[str, str | int]]]
+) -> dict:
     """Creates a guild using the API"""
     response = session.post(
         f"{BASE_URL}/guilds",
@@ -176,24 +179,35 @@ def transfer_ownership(session: Session, user_id: str, guild_id: str) -> None:
 
 def run() -> None:
     """Runs the script"""
-    env = dotenv_values(".env")
-    if "BOT_TOKEN" in env:
-        BOT_TOKEN: str = env["BOT_TOKEN"]
-    else:
-        raise ValueError("BOT_TOKEN not found in .env")
-    if "USER_ID" in env:
-        USER_ID: str = env["USER_ID"]
-    else:
-        raise ValueError("USER_ID not found in .env")
-
     parser = argparse.ArgumentParser(
         description="Create a Discord guild with the specified configuration",
         epilog="Example: python auto_guild.py examples/pydis_bot.yml",
     )
-    parser.add_argument("structure", help="file path to the guild structure")
+    parser.add_argument("structure", help="file path to the guild structure", type=str)
+    parser.add_argument(
+        "-u",
+        "--user",
+        help="user ID for user who will ownership transferred to them",
+        type=str,
+    )
+    parser.add_argument(
+        "-t",
+        "--token",
+        help="bot token used for creating the guild",
+        type=str,
+    )
     args = parser.parse_args()
+    load_dotenv()
 
-    with open(args.structure) as file:
+    USER_ID: str | None = args.user or getenv("USER_ID")
+    if not USER_ID:
+        raise ValueError("USER_ID not found")
+    BOT_TOKEN: str | None = args.token or getenv("BOT_TOKEN")
+    if not BOT_TOKEN:
+        raise ValueError("BOT_TOKEN not found")
+    template_path = args.structure
+
+    with open(template_path) as file:
         dumped = load(file, Loader=Loader)
 
     payload_ = payload_builder(dumped)
