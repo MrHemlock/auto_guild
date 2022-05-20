@@ -1,6 +1,6 @@
 [project]
 name = "auto_guild"
-version = "0.1.0"
+version = "1.0.0"
 description = "Creates a Discord server based on a template you layout, making it an easy and quick way to flesh out a server to fit your needs."
 authors = [
     { name = "Daniel J Brown", email = "browndj3@gmail.com" },

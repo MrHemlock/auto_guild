@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import webbrowser
 from os import getenv
+from pathlib import Path
 
 from dotenv import load_dotenv
 from requests import Session
@@ -263,9 +264,11 @@ def run() -> None:
 
         finished_guild_ = compile_finished_guild(channels_, guild_roles)
 
-        with open("guild_layout.yaml", "w") as file:
+        output_path = Path("guild_layout.yaml")
+
+        with open(output_path, "w") as file:
             dump(finished_guild_, file)
-        print(f"Guild layout saved to guild_layout.yaml")
+        print(f"Guild layout saved to {output_path.resolve()}")
 
         invite_url = get_invite(session_, invite_channel_id)
         print(invite_url)
