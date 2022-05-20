@@ -10,7 +10,10 @@ from dotenv import load_dotenv
 from requests import Session
 from yaml import Loader, dump, load
 
-BASE_URL = r"https://discord.com/api/v9"
+BASE_URL = r"https://discord.com/api/v10"
+
+PAYLOAD = dict[str, str | int | list[dict[str, str | int]]]
+PARSED_CHANNELS = list[dict[str, str | int]]
 
 
 class InvalidChannelType(Exception):
@@ -27,9 +30,26 @@ class InvalidChannelType(Exception):
         return self.message.format(self.channel_type)
 
 
-def channel_parser(
-    channel_mapping: dict[str, list[dict[str, str]]]
-) -> list[dict[str, str | int]]:
+class CreationError(Exception):
+    """Raised when there is no name or template file provided"""
+
+    def __init__(self, message=None):
+        if not message:
+            message = (
+                "Server could not be created. "
+                "Make sure you have provided either a server name or guild template."
+            )
+        self.message = message
+        super().__init__(message)
+
+    def __str__(self):
+        return self.message
+
+
+# TODO: Payload dataclass
+
+
+def channel_parser(channel_mapping: dict[str, list[dict[str, str]]]) -> PARSED_CHANNELS:
     """Builds a list of channel objects to pass to the API
 
     Channels must consist of either 3 things if they're a category
@@ -109,19 +129,23 @@ def role_parser(roles: list[str]) -> list[dict[str, str | int]]:
     return payload
 
 
-def payload_builder(config: dict) -> dict[str, str | list[dict[str, str | int]]]:
+def payload_builder(
+    config,
+    name=None,
+) -> PAYLOAD:
     """Builds the complete payload to pass to the API"""
-    return {
-        "name": config["name"],
-        "channels": channel_parser(config["categories"]),
-        "roles": role_parser(config["roles"]),
-        "system_channel_id": 1,
-    }
+    payload: PAYLOAD = {"system_channel_id": 1}
+    if categories := config.get("categories"):
+        payload.update(channels=channel_parser(categories))
+    if roles := config.get("role"):
+        payload.update(roles=role_parser(roles))
+    if name_ := name or config.get("name"):
+        payload.update(name=name_)
+
+    return payload
 
 
-def create_guild(
-    session: Session, payload: dict[str, str | list[dict[str, str | int]]]
-) -> dict:
+def create_guild(session: Session, payload: PAYLOAD) -> dict:
     """Creates a guild using the API"""
     response = session.post(
         f"{BASE_URL}/guilds",
@@ -183,34 +207,53 @@ def run() -> None:
         description="Create a Discord guild with the specified configuration",
         epilog="Example: python auto_guild.py examples/pydis_bot.yml",
     )
-    parser.add_argument("structure", help="file path to the guild structure", type=str)
+    parser.add_argument(
+        "-s",
+        "--structure",
+        help="file path to the guild structure",
+        type=str,
+    )
     parser.add_argument(
         "-u",
-        "--user",
+        "--user-id",
         help="user ID for user who will ownership transferred to them",
         type=str,
     )
     parser.add_argument(
         "-t",
-        "--token",
+        "--bot-token",
         help="bot token used for creating the guild",
         type=str,
     )
+    parser.add_argument(
+        "-n",
+        "--server-name",
+        help="desired server name if a blank server is desired",
+        type=str,
+    )
+
     args = parser.parse_args()
     load_dotenv()
 
-    USER_ID: str | None = args.user or getenv("USER_ID")
+    if not args.structure and not args.server_name:
+        raise CreationError
+
+    USER_ID: str | None = args.user_id or getenv("USER_ID")
     if not USER_ID:
         raise ValueError("USER_ID not found")
-    BOT_TOKEN: str | None = args.token or getenv("BOT_TOKEN")
+    BOT_TOKEN: str | None = args.bot_token or getenv("BOT_TOKEN")
     if not BOT_TOKEN:
         raise ValueError("BOT_TOKEN not found")
     template_path = args.structure
 
-    with open(template_path) as file:
-        dumped = load(file, Loader=Loader)
+    SERVER_NAME: str | None = args.server_name
+    if SERVER_NAME:
+        payload_ = payload_builder({"name": SERVER_NAME})
+    else:
+        with open(template_path) as file:
+            dumped = load(file, Loader=Loader)
 
-    payload_ = payload_builder(dumped)
+        payload_ = payload_builder(dumped)
 
     initialized = Session()
     initialized.headers.update(
@@ -237,7 +280,7 @@ def run() -> None:
 
         invite_url = get_invite(session_, invite_channel_id)
         print(invite_url)
-        webbrowser.open(invite_url, new=2)
+        webbrowser.open(invite_url)
 
         input("Press enter after you have joined the server")
         transfer_ownership(session_, USER_ID, guild_id_)
