@@ -4,6 +4,22 @@ Creates a Discord server based on a template you lay out, making it an easy and 
 
 ## Installation
 
+### pip
+
+You can install the project using `pip`:
+
+#### Linux/Mac
+```bash
+$ pip3 install auto_guild
+```
+
+#### Windows
+```powershell
+> py -m pip install auto_guild
+```
+
+### Source
+
 This project uses PDM, a package manager that implements PEP 582, please visit https://pdm.fming.dev/#installation for
 installation instructions.
 
