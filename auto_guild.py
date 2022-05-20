@@ -30,25 +30,6 @@ class InvalidChannelType(Exception):
         return self.message.format(self.channel_type)
 
 
-class CreationError(Exception):
-    """Raised when there is no name or template file provided"""
-
-    def __init__(self, message=None):
-        if not message:
-            message = (
-                "Server could not be created. "
-                "Make sure you have provided either a server name or guild template."
-            )
-        self.message = message
-        super().__init__(message)
-
-    def __str__(self):
-        return self.message
-
-
-# TODO: Payload dataclass
-
-
 def channel_parser(channel_mapping: dict[str, list[dict[str, str]]]) -> PARSED_CHANNELS:
     """Builds a list of channel objects to pass to the API
 
@@ -65,6 +46,7 @@ def channel_parser(channel_mapping: dict[str, list[dict[str, str]]]) -> PARSED_C
     parent_id: int - Used for the voice and text channels. Represents the category
         id that the channel is listed under
     """
+
     payload = []
     current_id = 0
 
@@ -101,13 +83,14 @@ def channel_parser(channel_mapping: dict[str, list[dict[str, str]]]) -> PARSED_C
     return payload
 
 
-def role_parser(roles: list[str]) -> list[dict[str, str | int]]:
+def role_parser(roles: list[str]) -> list:
     """Returns a list of role objects to pass to the API
 
     Role objects submitted to the Create Guild endpoint only require
     the role's name. The first role in the list will always be for
     the @everyone role
     """
+
     payload = [
         {
             "name": "everyone",
@@ -161,8 +144,9 @@ def get_channels(session: Session, guild_id: int) -> list[dict]:
 
 
 def compile_finished_guild(
-    channels: list[dict], roles: list[dict]
-) -> dict[str, list[dict[str, str]]]:
+    channels: list[dict],
+    roles: list[dict],
+):
     """Compiles the guild details into the format that the bot expects"""
     finished_guild = {}
 
@@ -203,14 +187,28 @@ def transfer_ownership(session: Session, user_id: str, guild_id: str) -> None:
 
 def run() -> None:
     """Runs the script"""
+    description = (
+        "Create a Discord guild with the specified configuration. "
+        "Either a server_name or guild template_path must be provided."
+    )
+
     parser = argparse.ArgumentParser(
-        description="Create a Discord guild with the specified configuration",
+        description=description,
         epilog="Example: python auto_guild.py examples/pydis_bot.yml",
     )
-    parser.add_argument(
+
+    group = parser.add_mutually_exclusive_group(required=True)
+
+    group.add_argument(
         "-s",
         "--structure",
         help="file path to the guild structure",
+        type=str,
+    )
+    group.add_argument(
+        "-n",
+        "--server-name",
+        help="desired server name if a blank server is desired",
         type=str,
     )
     parser.add_argument(
@@ -225,18 +223,9 @@ def run() -> None:
         help="bot token used for creating the guild",
         type=str,
     )
-    parser.add_argument(
-        "-n",
-        "--server-name",
-        help="desired server name if a blank server is desired",
-        type=str,
-    )
 
     args = parser.parse_args()
     load_dotenv()
-
-    if not args.structure and not args.server_name:
-        raise CreationError
 
     USER_ID: str | None = args.user_id or getenv("USER_ID")
     if not USER_ID:
@@ -280,7 +269,9 @@ def run() -> None:
 
         invite_url = get_invite(session_, invite_channel_id)
         print(invite_url)
-        webbrowser.open(invite_url)
+        answer = input("Would you like to open the invite link in a browser? y/N: ")
+        if "yes".startswith(answer.lower()):
+            webbrowser.open(invite_url)
 
         input("Press enter after you have joined the server")
         transfer_ownership(session_, USER_ID, guild_id_)
