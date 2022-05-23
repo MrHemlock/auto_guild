@@ -149,14 +149,16 @@ def compile_finished_guild(
     roles: list[dict],
 ):
     """Compiles the guild details into the format that the bot expects"""
-    finished_guild = {}
+    finished_guild = {"categories": {}, "roles": []}
 
-    channel_list = []
+    categories = finished_guild["categories"]
+    current = ""
     for channel in channels:
-        name = channel["name"]
-        id_ = channel["id"]
-        channel_list.append({name: id_})
-    finished_guild["channels"] = channel_list
+        if channel["type"] == 4:
+            current = channel["name"]
+            categories[current] = {"id": channel["id"]}
+        else:
+            categories[current][channel["name"]] = channel["id"]
 
     role_list = []
     for role in roles:
