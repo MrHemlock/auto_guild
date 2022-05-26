@@ -89,10 +89,10 @@ roles:
 ```yaml
 categories:
   Text Channels:
+    general: '979407901980504066'
     id: '979407901980504064'
   Voice Channels:
     General: '979407901980504067'
-    general: '979407901980504066'
     id: '979407901980504065'
 roles:
 - '@everyone': '979407901464625223'
