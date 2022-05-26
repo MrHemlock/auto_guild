@@ -69,3 +69,31 @@ roles:
 ```
 
 `category_name` and `channel_name` should be replaced with the relevant names you desire. For a practical example, see the `pydis_bot.yml` file in the `examples` folder.
+
+## Example template with output
+
+The below input template will create the below output:
+
+```yaml
+name: devserver
+categories:
+  welcome:
+    - welcome: text
+  voice:
+    - vc: voice
+roles:
+  - admins
+  - moderators
+```
+
+```yaml
+categories:
+  Text Channels:
+    id: '979407901980504064'
+  Voice Channels:
+    General: '979407901980504067'
+    general: '979407901980504066'
+    id: '979407901980504065'
+roles:
+- '@everyone': '979407901464625223'
+```
