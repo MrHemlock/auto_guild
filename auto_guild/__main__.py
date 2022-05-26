@@ -121,7 +121,7 @@ def payload_builder(
     payload: PAYLOAD = {"system_channel_id": 1}
     if categories := config.get("categories"):
         payload.update(channels=channel_parser(categories))
-    if roles := config.get("role"):
+    if roles := config.get("roles"):
         payload.update(roles=role_parser(roles))
     if name_ := name or config.get("name"):
         payload.update(name=name_)
