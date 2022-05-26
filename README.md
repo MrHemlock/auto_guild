@@ -1,6 +1,7 @@
 # auto_guild
 
-Creates a Discord server based on a template you lay out, making it an easy and quick way to flesh out a server to fit your needs.
+Creates a Discord server based on a template you lay out, making it an easy and quick way to flesh out a server to fit
+your needs.
 
 ## Installation
 
@@ -9,11 +10,13 @@ Creates a Discord server based on a template you lay out, making it an easy and 
 You can install the project using `pip`:
 
 #### Linux/Mac
+
 ```bash
 $ pip3 install auto_guild
 ```
 
 #### Windows
+
 ```powershell
 > py -m pip install auto_guild
 ```
@@ -33,13 +36,16 @@ $ pdm install
 ## Usage
 
 The script requires 3 things in order to run:
+
 - a server template yaml
 - a token for the bot you want to make the server
 - a user ID for the user you want to transfer ownership to
 
-`auto_guild` requires that you provide it with either a server name that you want to use (if you want it to create a blank server) or provide it with a file path to a server template yaml.
+`auto_guild` requires that you provide it with either a server name that you want to use (if you want it to create a
+blank server) or provide it with a file path to a server template yaml.
 
-The `BOT_TOKEN` and `USER_ID` can either be passed as arguments on the command-line, placed in a `.env` file, or come from your system's environmental variables.
+The `BOT_TOKEN` and `USER_ID` can either be passed as arguments on the command-line, placed in a `.env` file, or come
+from your system's environmental variables.
 
 Example:
 
@@ -62,13 +68,14 @@ The server template yaml format is as follows:
 ```yaml
 name: server_name_here
 categories:
-    category_name:
-        - channel_name: channel_type
+  category_name:
+    - channel_name: channel_type
 roles:
-    - role_name
+  - role_name
 ```
 
-`category_name` and `channel_name` should be replaced with the relevant names you desire. For a practical example, see the `pydis_bot.yml` file in the `examples` folder.
+`category_name` and `channel_name` should be replaced with the relevant names you desire. For a practical example, see
+the `pydis_bot.yml` file in the `examples` folder.
 
 ## Example template with output
 
@@ -88,12 +95,14 @@ roles:
 
 ```yaml
 categories:
-  Text Channels:
-    general: '979407901980504066'
-    id: '979407901980504064'
-  Voice Channels:
-    General: '979407901980504067'
-    id: '979407901980504065'
+  voice:
+    id: '979440587482750981'
+    vc: '979440587482750982'
+  welcome:
+    id: '979440587482750979'
+    welcome: '979440587482750980'
 roles:
-- '@everyone': '979407901464625223'
+  - '@everyone': '979440587482750976'
+  - admins: '979440587482750977'
+  - moderators: '979440587482750978'
 ```
