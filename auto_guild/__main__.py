@@ -121,7 +121,7 @@ def payload_builder(
     payload: PAYLOAD = {"system_channel_id": 1}
     if categories := config.get("categories"):
         payload.update(channels=channel_parser(categories))
-    if roles := config.get("role"):
+    if roles := config.get("roles"):
         payload.update(roles=role_parser(roles))
     if name_ := name or config.get("name"):
         payload.update(name=name_)
@@ -275,7 +275,7 @@ def run() -> None:
         invite_url = get_invite(session_, invite_channel_id)
         print(invite_url)
         answer = input("Would you like to open the invite link in a browser? y/N: ")
-        if "yes".startswith(answer.lower()):
+        if len(answer) > 0 and "yes".startswith(answer.lower()):
             webbrowser.open(invite_url)
 
         input("Press enter after you have joined the server")
