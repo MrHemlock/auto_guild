@@ -144,9 +144,33 @@ def get_channels(session: Session, guild_id: int) -> list[dict]:
     return response.json()
 
 
+def create_webhooks(
+    session: Session,
+    webhook_channels: list[str],
+    channels_: list[dict],
+):
+
+    webhooks = []
+
+    for channel in channels_:
+        if channel.get("type") == 4:
+            continue
+        if channel_name := channel.get("name") not in webhook_channels:
+            continue
+        channel_id = channel.get("id")
+        response = session.post(
+            f"{BASE_URL}/channels/{channel_id}/webhooks",
+            json={"name": channel_name},
+        )
+        webhooks.append(response.json())
+
+    return webhooks
+
+
 def compile_finished_guild(
     channels: list[dict],
     roles: list[dict],
+    webhooks: list[dict],
 ):
     """Compiles the guild details into the format that the bot expects"""
     finished_guild = {"categories": {}, "roles": []}
@@ -166,6 +190,13 @@ def compile_finished_guild(
         id_ = role["id"]
         role_list.append({name: id_})
     finished_guild["roles"] = role_list
+
+    webhook_list = []
+    for webhook in webhooks:
+        name = webhook["name"]
+        id_ = webhook["id"]
+        webhook_list.append({name: id_})
+    finished_guild["webhooks"] = webhook_list
 
     return finished_guild
 
