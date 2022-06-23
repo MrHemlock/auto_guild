@@ -3,17 +3,27 @@
 from __future__ import annotations
 
 import argparse
+import logging
 import webbrowser
+from pprint import pprint
 from os import getenv
 from pathlib import Path
+from typing import Any
 
 from dotenv import load_dotenv
 from requests import Session
 from yaml import Loader, dump, load
 
-BASE_URL = r"https://discord.com/api/v10"
 
-PAYLOAD = dict[str, str | int | list[dict[str, str | int]]]
+BASE_URL = r"https://discord.com/api/v10"
+CHANNEL_TYPES = {
+    "text": 0,
+    "voice": 2,
+    "category": 4,
+    "news": 5,
+}
+
+JSON = dict[str, Any] | list[Any] | int | str | float | bool | None
 PARSED_CHANNELS = list[dict[str, str | int]]
 
 
@@ -44,6 +54,7 @@ def channel_parser(channel_mapping: dict[str, list[dict[str, str]]]) -> PARSED_C
         0 - Text channel
         2 - Voice channel
         4 - Category
+        5 - Guild News
     parent_id: int - Used for the voice and text channels. Represents the category
         id that the channel is listed under
     """
@@ -51,36 +62,39 @@ def channel_parser(channel_mapping: dict[str, list[dict[str, str]]]) -> PARSED_C
     payload = []
     current_id = 0
 
-    for category, channels in channel_mapping.items():
+    for category in channel_mapping:
         parent_id = current_id
+        channels = {}
+
+        if isinstance(category, dict):
+            category_name, channels = next(iter(category.items()))
+        else:
+            category_name = category
 
         payload.append(
             {
-                "name": category,
+                "name": category_name,
                 "id": parent_id,
                 "type": 4,
             }
         )
-        current_id += 1
-        for channel in channels:
-            ((name, type_),) = channel.items()
-            if type_ == "voice":
-                type_id = 2
-            elif type_ == "text":
-                type_id = 0
-            else:
-                raise InvalidChannelType(type_)
 
+        current_id += 1
+
+        for channel in channels:
+            channel_name, type_ = next(iter(channel.items()))
+            if (type_id := CHANNEL_TYPES.get(type_)) is None:
+                raise InvalidChannelType(type_)
             payload.append(
                 {
-                    "name": name,
+                    "name": channel_name,
                     "id": current_id,
                     "type": type_id,
                     "parent_id": parent_id,
                 }
             )
             current_id += 1
-
+    pprint(payload)
     return payload
 
 
@@ -109,32 +123,35 @@ def role_parser(roles: list[str]) -> list:
             }
         )
         current_id += 1
-
+    pprint(payload)
     return payload
 
 
 def payload_builder(
     config,
     name=None,
-) -> PAYLOAD:
+) -> JSON:
     """Builds the complete payload to pass to the API"""
-    payload: PAYLOAD = {"system_channel_id": 1}
+    payload: JSON = {"system_channel_id": 1}
     if categories := config.get("categories"):
         payload.update(channels=channel_parser(categories))
     if roles := config.get("roles"):
         payload.update(roles=role_parser(roles))
     if name_ := name or config.get("name"):
         payload.update(name=name_)
-
+    pprint(payload)
     return payload
 
 
-def create_guild(session: Session, payload: PAYLOAD) -> dict:
+def create_guild(session: Session, payload: JSON) -> dict:
     """Creates a guild using the API"""
     response = session.post(
         f"{BASE_URL}/guilds",
         json=payload,
     )
+    logging.debug("Received status code: {}", response.status_code)
+    response.raise_for_status()
+
     return response.json()
 
 
@@ -289,13 +306,18 @@ def run() -> None:
 
     with initialized as session_:
         guild_response = create_guild(session_, payload_)
+        logging.info("Successfully created new guild")
         guild_id_ = guild_response["id"]
         guild_roles = guild_response["roles"]
         invite_channel_id = guild_response["system_channel_id"]
 
         channels_ = get_channels(session_, guild_id_)
 
-        finished_guild_ = compile_finished_guild(channels_, guild_roles)
+        webhook_objects = []
+        if webhooks := payload_.get("webhooks"):
+            webhook_objects = create_webhooks(session_, webhooks, channels_)
+
+        finished_guild_ = compile_finished_guild(channels_, guild_roles, webhook_objects)
 
         output_path = Path("guild_layout.yaml")
 

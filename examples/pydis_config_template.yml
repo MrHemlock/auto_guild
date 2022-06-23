@@ -1,0 +1,137 @@
+name: dev_server
+
+categories:
+  - help_dormant
+  - help_in_use
+  - appeals
+  - appeals2
+  - summer_code_jam
+
+  - news:
+    - announcements: news
+    - mailing_lists: news
+    - python_events: news
+    - python_news: text
+    - reddit: news
+
+  - information:
+    - changelog: news
+
+  - development:
+    - dev_contrib: text
+    - dev_core: text
+    - dev_voting: text
+    - dev_log: text
+
+  - discussion:
+    - meta: text
+    - python_general: text
+
+  - available_help_channels:
+    - cooldown: text
+    - how_to_get_help: text
+
+  - "topical chat/help":
+    - discord_bots: text
+    - esoteric_python: text
+
+  - logs:
+    - attachment_log: text
+    - message_log: text
+    - mod_log: text
+    - nomination_archive: text
+    - user_log: text
+    - voice_log: text
+    - big-brother: text
+
+  - open_source_projects:
+    - black_formatter: text
+
+  - off_topic/general:
+    - off_topic_0: text
+    - off_topic_1: text
+    - off_topic_2: text
+
+  - bot_commands:
+    - bot_commands: text
+
+  - voice:
+    - voice_gate: text
+    - code_help_chat_0: text
+    - code_help_chat_1: text
+    - staff_voice_chat: text
+    - voice_chat_0: text
+    - voice_chat_1: text
+    - code_help_voice_0: voice
+    - code_help_voice_1: voice
+    - general_voice_0: voice
+    - general_voice_1: voice
+    - staff_voice: voice
+
+  - event_planning:
+    - code_jam_planning: text
+
+  - admins:
+    - admins: text
+    - admin_spam: text
+    - admin_announcements: text
+    - admins_voice: voice
+
+  - moderators:
+    - defcon: text
+    - mod_alerts: text
+    - mods: text
+    - mod_meta: text
+    - nomination-voting: text
+    - mod_announcements: text
+
+  - staff_social:
+    - duck_pond: text
+    - staff_lounge: text
+
+  - staff:
+    - helpers: text
+    - nominations: text
+    - organisation: text
+    - staff-info: text
+    - staff_announcements: text
+
+  - modmail:
+    - incidents: text
+    - incidents_archive: text
+
+
+webhooks:
+  - python_news
+  - dev_log
+  - big_brother
+  - duck_pond
+  - incidents
+  - incidents_archive
+
+
+roles:
+  - advent_of_code
+  - announcements
+  - lovefest
+  - pyweek_announcements
+  - contributors
+  - help_cooldown
+  - muted
+  - partners
+  - python_community
+  - sprinters
+  - voice_verified
+  - admins
+  - core_developers
+  - code_jam_event_team
+  - devops
+  - domain_leads
+  - events_lead
+  - helpers
+  - moderators
+  - mod_team
+  - owners
+  - project_leads
+  - jammer
+  - video
