@@ -8,14 +8,14 @@ categories:
   - summer_code_jam
 
   - news:
-    - announcements: news
-    - mailing_lists: news
-    - python_events: news
+    - announcements: text
+    - mailing_lists: text
+    - python_events: text
     - python_news: text
-    - reddit: news
+    - reddit: text
 
   - information:
-    - changelog: news
+    - changelog: text
 
   - development:
     - dev_contrib: text
