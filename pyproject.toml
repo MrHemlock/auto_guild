@@ -10,12 +10,12 @@ dependencies = [
     "requests>=2.27.1",
     "pyyaml>=6.0",
     "python-dotenv>=0.20.0"]
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 readme = "README.md"
 
 [project.urls]
-homepage = "https://github.com/MrHemlock/auto_guild"
-repository = "https://github.com/MrHemlock/auto_guild"
+Homepage = "https://github.com/MrHemlock/auto_guild"
+Repository = "https://github.com/MrHemlock/auto_guild"
 
 [project.scripts]
 auto-guild = "auto_guild.__main__:run"
