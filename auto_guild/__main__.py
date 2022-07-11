@@ -53,6 +53,7 @@ def channel_parser(channel_mapping):
 
     payload = []
     current_id = 0
+    system_channel_id = None
 
     for category in channel_mapping:
         parent_id = current_id
@@ -85,8 +86,10 @@ def channel_parser(channel_mapping):
                     "parent_id": parent_id,
                 }
             )
+            if system_channel_id is None:
+                system_channel_id = current_id
             current_id += 1
-    return payload
+    return payload, system_channel_id
 
 
 def role_parser(roles):
@@ -119,12 +122,17 @@ def role_parser(roles):
 
 def payload_builder(
     config,
+    *,
     name=None,
+    system_channel_id=1,
 ):
     """Builds the complete payload to pass to the API"""
-    payload = {"system_channel_id": 8} 
+    payload = {}
     if categories := config.get("categories"):
-        payload.update(channels=channel_parser(categories))
+        channels_, system_channel_id = channel_parser(categories)
+        payload.update(channels=channels_)
+    payload.update(system_channel_id=system_channel_id)
+
     if roles := config.get("roles"):
         payload.update(roles=role_parser(roles))
     if name_ := name or config.get("name"):
