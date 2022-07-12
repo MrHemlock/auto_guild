@@ -180,12 +180,14 @@ def create_webhooks(
 
 
 def compile_finished_guild(
+    name,
+    id_,
     channels,
     roles,
     webhooks,
 ):
     """Compiles the guild details into the format that the bot expects"""
-    finished_guild = {"categories": {}, "roles": []}
+    finished_guild = {name: id_, "categories": {}, "roles": []}
 
     categories = finished_guild["categories"]
     current = ""
@@ -302,7 +304,7 @@ def run():
 
     with initialized as session_:
         guild_response = create_guild(session_, payload_)
-        # print(guild_response)
+        guild_name = guild_response["name"]
         guild_id_ = guild_response["id"]
         guild_roles = guild_response["roles"]
         invite_channel_id = guild_response["system_channel_id"]
@@ -313,7 +315,13 @@ def run():
         if webhook_list is not None:
             webhook_objects = create_webhooks(session_, webhook_list, channels_)
 
-        finished_guild_ = compile_finished_guild(channels_, guild_roles, webhook_objects)
+        finished_guild_ = compile_finished_guild(
+            guild_name,
+            guild_id_,
+            channels_,
+            guild_roles,
+            webhook_objects,
+        )
 
         output_path = Path("guild_layout.yaml")
 

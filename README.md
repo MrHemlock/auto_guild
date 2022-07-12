@@ -62,10 +62,36 @@ The server template yaml format is as follows:
 ```yaml
 name: server_name_here
 categories:
-    category_name:
+    - category_name
+    - another_category_name:
         - channel_name: channel_type
 roles:
     - role_name
+webhooks:
+    - webhook_channel_name
 ```
 
-`category_name` and `channel_name` should be replaced with the relevant names you desire. For a practical example, see the `pydis_bot.yml` file in the `examples` folder.
+`category_name` and `channel_name` should be replaced with the relevant names you desire. For a practical example, see the `pydis_config_template.yml` file in the `examples` folder. For webhooks, the `webhook_channel_name` MUST match the channel name it will be tied to.
+
+Currently, there are only two acceptable channel types you can use: `text` and `voice`. Anything else will result in an error.
+
+## Server Output Example
+
+After processing the server template, you'll end up with a file called `guild_layout.yaml`, which will look like this:
+
+```yaml
+server_name_here: server_id
+categories:
+    - category_name: 
+        - id: category_id
+    - another_category_name:
+        - id: another_category_id
+        - channel_name: channel_id
+roles:
+    - role_name: role_id
+webhooks:
+    - webhook_name: webhook_id
+```
+
+Note: When the `yaml` file is created, it lists this alphabetically. That means when the file is made, the category and channels may be in slightly different places than you expected. The server name and id will likely be nestled somewhere in the middle of the output file.
+
