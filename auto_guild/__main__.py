@@ -30,11 +30,11 @@ class InvalidChannelType(Exception):
         )
         super().__init__(self.message)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.message.format(self.channel_type)
 
 
-def channel_parser(channel_mapping):
+def channel_parser(channel_mapping: dict) -> tuple[list, int | None]:
     """Builds a list of channel objects to pass to the API
 
     Channels must consist of either 3 things if they're a category
@@ -92,7 +92,7 @@ def channel_parser(channel_mapping):
     return payload, system_channel_id
 
 
-def role_parser(roles):
+def role_parser(roles: list[str]) -> list[dict[str, list]]:
     """Returns a list of role objects to pass to the API
 
     Role objects submitted to the Create Guild endpoint only require
@@ -121,11 +121,10 @@ def role_parser(roles):
 
 
 def payload_builder(
-    config,
+    config: dict,
     *,
-    name=None,
-    system_channel_id=1,
-):
+    system_channel_id: int | None = 1,
+) -> dict:
     """Builds the complete payload to pass to the API"""
     payload = {}
     if categories := config.get("categories"):
@@ -135,12 +134,12 @@ def payload_builder(
 
     if roles := config.get("roles"):
         payload.update(roles=role_parser(roles))
-    if name_ := name or config.get("name"):
+    if name_ := config.get("name"):
         payload.update(name=name_)
     return payload
 
 
-def create_guild(session, payload):
+def create_guild(session: Session, payload: dict) -> dict:
     """Creates a guild using the API"""
     response = session.post(
         f"{BASE_URL}/guilds",
@@ -151,17 +150,17 @@ def create_guild(session, payload):
     return response.json()
 
 
-def get_channels(session, guild_id):
+def get_channels(session: Session, guild_id: str) -> list[dict]:
     """Gets all channels in a guild"""
     response = session.get(f"{BASE_URL}/guilds/{guild_id}/channels")
     return response.json()
 
 
 def create_webhooks(
-    session,
-    webhook_channels,
-    channels_,
-):
+    session: Session,
+    webhook_channels: list,
+    channels_: list[dict],
+) -> list[dict]:
     webhooks = []
 
     for channel in channels_:
@@ -180,12 +179,12 @@ def create_webhooks(
 
 
 def compile_finished_guild(
-    name,
-    id_,
-    channels,
-    roles,
-    webhooks,
-):
+    name: str,
+    id_: str,
+    channels: list[dict],
+    roles: list[dict],
+    webhooks: list[dict],
+) -> dict:
     """Compiles the guild details into the format that the bot expects"""
     finished_guild = {name: id_, "categories": {}, "roles": []}
 
@@ -215,7 +214,7 @@ def compile_finished_guild(
     return finished_guild
 
 
-def get_invite(session, channel_id):
+def get_invite(session: Session, channel_id: str) -> str:
     """Creates an invite for the given channel and returns the invite URL"""
     response = session.post(
         f"{BASE_URL}/channels/{channel_id}/invites",
@@ -225,7 +224,7 @@ def get_invite(session, channel_id):
     return f"https://discord.gg/{invite_id}"
 
 
-def transfer_ownership(session, user_id, guild_id):
+def transfer_ownership(session: Session, user_id: str, guild_id: str,) -> None:
     """Transfers ownership of a guild to a user"""
     session.patch(
         f"{BASE_URL}/guilds/{guild_id}",
