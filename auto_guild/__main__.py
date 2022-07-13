@@ -241,7 +241,7 @@ def run():
 
     parser = argparse.ArgumentParser(
         description=description,
-        epilog="Example: python auto_guild.py examples/pydis_bot.yml",
+        epilog="Example: python -m auto_guild -s examples/pydis_bot.yml",
     )
 
     group = parser.add_mutually_exclusive_group(required=True)
