@@ -1,6 +1,6 @@
 [project]
 name = "auto_guild"
-version = "1.0.1"
+version = "1.1.0"
 description = "Creates a Discord server based on a template you layout, making it an easy and quick way to flesh out a server to fit your needs."
 authors = [
     { name = "Daniel J Brown", email = "browndj3@gmail.com" },
@@ -10,12 +10,12 @@ dependencies = [
     "requests>=2.27.1",
     "pyyaml>=6.0",
     "python-dotenv>=0.20.0"]
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 readme = "README.md"
 
 [project.urls]
-homepage = "https://github.com/MrHemlock/auto_guild"
-repository = "https://github.com/MrHemlock/auto_guild"
+Homepage = "https://github.com/MrHemlock/auto_guild"
+Repository = "https://github.com/MrHemlock/auto_guild"
 
 [project.scripts]
 auto-guild = "auto_guild.__main__:run"
